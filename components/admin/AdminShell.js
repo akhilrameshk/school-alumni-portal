@@ -7,6 +7,7 @@ const TABS = [
   { key: 'members', label: 'Members', href: '/admin' },
   { key: 'events', label: 'Events & Announcements', href: '/admin/events' },
   { key: 'gallery', label: 'Gallery', href: '/admin/gallery' },
+  { key: 'committee', label: 'Committee', href: '/admin/committee' },
   { key: 'ads', label: 'Advertisements', href: '/admin/ads' },
 ];
 

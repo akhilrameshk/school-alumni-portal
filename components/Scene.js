@@ -1,3 +1,4 @@
+'use client';
 import { Box } from '@mui/material';
 
 // School building, banyan trees and a group of friends holding hands, drawn as SVG.

@@ -5,7 +5,7 @@ import Member from '@/models/Member';
 
 export async function POST(req) {
   const body = await req.json().catch(() => ({}));
-  const { data, errors, ok } = validateMember(body);
+  const { data, errors, ok } = validateMember(body, { strictProfession: true });
   if (!ok) return NextResponse.json({ error: Object.values(errors)[0] }, { status: 400 });
 
   await connectDB();

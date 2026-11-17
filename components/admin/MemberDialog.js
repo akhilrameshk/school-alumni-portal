@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Stack, TextField, MenuItem, Button, Alert } from '@mui/material';
-import { BATCHES } from '@/lib/config';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Stack, TextField, MenuItem, Button, Alert, Autocomplete } from '@mui/material';
+import { BATCHES, PROFESSIONS } from '@/lib/config';
 import { dateInput } from '@/lib/format';
 
 const BLANK = { name: '', batch: '', mobile: '', email: '', location: '', profession: '', status: 'approved', paymentStatus: 'pending', offlineAmount: '' };
@@ -42,7 +42,8 @@ export default function MemberDialog({ open, member, onClose, onSaved }) {
           <TextField label="Mobile" value={data.mobile} onChange={set('mobile')} />
           <TextField label="Email" value={data.email} onChange={set('email')} />
           <TextField label="Location" value={data.location} onChange={set('location')} />
-          <TextField label="Profession" value={data.profession} onChange={set('profession')} />
+          <Autocomplete freeSolo options={PROFESSIONS} value={data.profession || ''} onInputChange={(_, v) => setForm({ ...data, profession: v })}
+            renderInput={(params) => <TextField {...params} label="Profession" helperText={data.professionOther ? `Member wrote: ${data.professionOther}` : 'Pick from the list or type'} />} />
           <TextField select label="Approval" value={data.status} onChange={set('status')}>
             <MenuItem value="pending">Pending</MenuItem><MenuItem value="approved">Approved</MenuItem>
           </TextField>

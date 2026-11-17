@@ -15,9 +15,9 @@ export async function GET(req) {
   const members = await Member.find(filter).sort({ batch: 1, name: 1 }).lean();
   const day = (d) => (d ? new Date(d).toISOString().slice(0, 10) : '');
   const csv = toCSV(
-    ['Name', 'Batch', 'Mobile', 'Email', 'Location', 'Profession', 'Approval', 'Payment', 'Last amount paid', 'Last paid on', 'Valid until', 'Days left', 'Total amount paid'],
+    ['Name', 'Batch', 'Mobile', 'Email', 'Location', 'Profession', 'Approval', 'Payment', 'Last amount paid', 'Last paid on', 'Last transaction ID', 'Valid until', 'Days left', 'Total amount paid'],
     members.map((m) => [m.name, m.batch, m.mobile, m.email, m.location, m.profession, m.status, m.paymentStatus,
-      m.lastPaidAmount || 0, day(m.lastPaidAt), day(m.validUntil), m.validUntil ? Math.ceil((new Date(m.validUntil) - Date.now()) / 864e5) : '', m.totalPaid || 0])
+      m.lastPaidAmount || 0, day(m.lastPaidAt), [...(m.payments || [])].reverse().find((x) => x.paymentId)?.paymentId || '', day(m.validUntil), m.validUntil ? Math.ceil((new Date(m.validUntil) - Date.now()) / 864e5) : '', m.totalPaid || 0])
   );
   return new Response('\uFEFF' + csv, {
     headers: {

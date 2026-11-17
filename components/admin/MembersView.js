@@ -7,6 +7,7 @@ import { BATCHES } from '@/lib/config';
 import { fmtDate, rupees } from '@/lib/format';
 import MemberDialog from './MemberDialog';
 import BulkDialog from './BulkDialog';
+import PaymentsDialog from './PaymentsDialog';
 
 export default function MembersView() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function MembersView() {
   const [edit, setEdit] = useState(undefined); // undefined = closed, null = add, object = edit
   const [del, setDel] = useState(null);
   const [bulk, setBulk] = useState(false);
+  const [pays, setPays] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -57,9 +59,15 @@ export default function MembersView() {
     { field: 'name', headerName: 'Name', flex: 1, minWidth: 160 },
     { field: 'batch', headerName: 'Batch', width: 80 },
     { field: 'mobile', headerName: 'Mobile', width: 140 },
-    { field: 'profession', headerName: 'Profession', width: 150 },
+    { field: 'profession', headerName: 'Profession', width: 190, renderCell: (p) => (p.row.profession === 'Other' && p.row.professionOther ? `Other: ${p.row.professionOther}` : p.row.profession) },
     { field: 'lastPaidAmount', headerName: 'Last amount paid', width: 140, renderCell: (p) => (p.row.lastPaidAt ? rupees(p.row.lastPaidAmount) : '–') },
     { field: 'lastPaidAt', headerName: 'Last paid on', width: 125, renderCell: (p) => fmtDate(p.row.lastPaidAt) },
+    {
+      field: 'lastPaymentId', headerName: 'Transaction ID', width: 210, sortable: false,
+      renderCell: (p) => (p.value
+        ? <span style={{ fontFamily: 'ui-monospace, Menlo, Consolas, monospace', fontSize: 13 }}>{p.value}</span>
+        : (p.row.paymentStatus === 'paid' ? 'Offline' : '–')),
+    },
     { field: 'totalPaid', headerName: 'Total amount paid', width: 150, renderCell: (p) => <b>{rupees(p.row.totalPaid)}</b> },
     { field: 'validUntil', headerName: 'Valid until', width: 125, renderCell: (p) => fmtDate(p.row.validUntil) },
     {
@@ -74,10 +82,11 @@ export default function MembersView() {
     { field: 'paymentStatus', headerName: 'Payment', width: 105, renderCell: (p) => <Chip size="small" label={p.value === 'paid' ? 'Paid' : 'Pending'} color={p.value === 'paid' ? 'success' : 'warning'} /> },
     { field: 'status', headerName: 'Approval', width: 105, renderCell: (p) => <Chip size="small" variant="outlined" label={p.value === 'approved' ? 'Approved' : 'Pending'} color={p.value === 'approved' ? 'success' : 'default'} /> },
     {
-      field: 'actions', headerName: 'Actions', width: 280, sortable: false, filterable: false,
+      field: 'actions', headerName: 'Actions', width: 370, sortable: false, filterable: false,
       renderCell: (p) => (
         <Stack direction="row" spacing={1} alignItems="center" sx={{ height: '100%' }}>
           <Button size="small" variant="outlined" onClick={() => setEdit(p.row)}>View / Edit</Button>
+          <Button size="small" onClick={() => setPays(p.row)}>Payments</Button>
           {p.row.status !== 'approved' && <Button size="small" onClick={() => approve(p.row.id)}>Approve</Button>}
           <Button size="small" color="error" onClick={() => setDel(p.row)}>Delete</Button>
         </Stack>
@@ -91,7 +100,8 @@ export default function MembersView() {
         <Typography variant="h4">Members</Typography>
         <Stack direction="row" spacing={1.25} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
           <Button variant="outlined" onClick={() => setEdit(null)}>Add member</Button>
-          <Button variant="outlined" component="a" href={exportUrl}>Export (Excel / CSV)</Button>
+          <Button variant="outlined" component="a" href={exportUrl}>Export members</Button>
+          <Button variant="outlined" component="a" href="/api/admin/payments/export">Export payments</Button>
           <Button variant="contained" onClick={() => setBulk(true)}>Bulk upload (CSV)</Button>
         </Stack>
       </Box>
@@ -121,6 +131,7 @@ export default function MembersView() {
       </Paper>
 
       <MemberDialog open={edit !== undefined} member={edit || null} onClose={() => setEdit(undefined)} onSaved={load} />
+      <PaymentsDialog member={pays} onClose={() => setPays(null)} />
       <BulkDialog open={bulk} onClose={() => setBulk(false)} onDone={load} />
       <Dialog open={!!del} onClose={() => setDel(null)}>
         <DialogTitle>Delete member?</DialogTitle>

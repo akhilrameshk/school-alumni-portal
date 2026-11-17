@@ -19,6 +19,7 @@ const MemberSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     location: { type: String, required: true, trim: true },
     profession: { type: String, required: true, trim: true },
+    professionOther: { type: String, trim: true, maxlength: 100 }, // when profession is "Other"
     consent: { type: Boolean, default: false },
     status: { type: String, enum: ['pending', 'approved'], default: 'pending' },
     paymentStatus: { type: String, enum: ['pending', 'paid'], default: 'pending' },
